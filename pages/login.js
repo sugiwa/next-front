@@ -1,56 +1,36 @@
 import {useState} from 'react'
 import Head from 'next/head'
+import {useRouter} from 'next/router'
 import styles from '../styles/Home.module.css'
-import { makeStyles } from '@material-ui/core/styles';
 import Link from 'next/link'
 import { 
   Container, Button, Box,
   CssBaseline, Grid,
   Input, TextField,
-  Toolbar, IconButton,
-  AppBar, Typography
+  Toolbar, IconButton
 } from '@material-ui/core'
-import MenuIcon from '@material-ui/icons/Menu'
 import axios from 'axios'
-
 import Layout from '../components/Layout'
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    flexGrow: 1,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-  },
-  title: {
-    flexGrow: 1,
-  },
-  TextField: {
-    margin: "0 auto"
-  }
-}));
 
 export default function Home() {
   const [email, setEmail] = useState("");
-  const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  
-  const classes = useStyles();
+
+  const router = useRouter();
 
   const createUser = (event) => {
     console.log("イベント発火")
-    axios.post('http://localhost:3001/api/v1/auth',
+    axios.post('http://localhost:3001/api/v1/auth/sign_in',
       {
-        name: name,
         email: email,
         password: password,
-        password_confirmation: password
       }
     ).then(response => {
       console.log("registration response", response)
-      if(response.status === "200"){
-        window.location.href = './mypage';
+      if(response.status === 200){
+        router.push({pathname: '/mypage', query: {uid: response.data.data.id}})
       }
+      
     }).catch(error => {
       console.log("registration error", error)
     }).catch(data =>  {
@@ -68,18 +48,10 @@ export default function Home() {
       </Head>
 
       <Layout>
-
         <Container>
           <CssBaseline />
           <form onSubmit={createUser}>
             <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  label='name'
-                  variant='filled'
-                  onChange={event => setName(event.target.value)}
-                  />
-              </Grid>
               <Grid item xs={12}>
                 <TextField
                   label='email'
@@ -114,7 +86,6 @@ export default function Home() {
           </main>
         </Container>
       </Layout>
-
     </div>
   )
 }
